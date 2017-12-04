@@ -33,7 +33,7 @@ def exchange(url, result, metodo, jsondata):
     return webpage.json()
 
 id1 = 'youID'
-key = 'youKey'
+key = 'youKEY'
 url1 = 'https://broker.negociecoins.com.br/tradeapi/v1/'
 method = 'POST'
 function = 'user/orders'
