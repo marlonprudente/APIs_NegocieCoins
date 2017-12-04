@@ -1,8 +1,6 @@
 
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * API desenvolvida pela NegocieCoins para acesso as funcionalidades da exchange.
  */
 package API.Trade;
 
@@ -22,24 +20,40 @@ import static org.apache.commons.codec.binary.Base64.*;
 
 /**
  *
- * @author Marlon Prudente <m.prudente at btc-banco.com>
- * <marlonoliveira at alunos.utfpr.edu.br>
+ * @author Marlon Prudente < m.prudente at btc-banco.com >
+ * < marlonoliveira at alunos.utfpr.edu.br >
  */
 public class Authentication {
-
+    /**
+     * 
+     * @param data Dados enviados para a API, no caso dos métodos GET e DELETE, os dados são nulos.
+     * @param secret Chave da API
+     * @return requestSignatureBase64String request que compõe o cabeçalho AMX
+     * @throws Exception Exceções tratadas
+     */
     private static String computeSignature(String data, String secret) throws Exception {
-
+        //Recebe como parametros os dados a serem requisitados e a chave da API.
         SecretKey secretKey = null;
         byte[] keyBytes = decodeBase64(secret);
+        //Faz-se a criptografia da chave da API no formato HMACSHA256
         secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
         Mac mac = Mac.getInstance("HmacSHA256");
-
         mac.init(secretKey);
-
         byte[] text = data.getBytes();
+        //Faz-se o encode em base 64 com Hash MAC e os dados, e retorna para ser usado em requestSignatureBase64String
         return new String(encodeBase64(mac.doFinal(text))).trim();
     }
-
+    /**
+     * 
+     * @param APIurl URL da API da NegocieCoins
+     * @param APIid ID da API do usuário
+     * @param APIkey Chave da API do Usuário
+     * @param APIfuncao Função desejada da API, compõe o final da URL da API
+     * @param APImetodo Método utilizado na conexão com a API, pode ser GET, POST ou DELETE
+     * @param APIbody Corpo de envio da requisição, nos métodos GET e DELETE ele é nulo.
+     * @return header Cabeçalho no formato desejado para se autenticar na API da NegocieCoins.
+     * @throws Exception Exceção tradada na conexão
+     */
     public String amx_authorization_header(String APIurl, String APIid, String APIkey, String APIfuncao, String APImetodo, String APIbody) throws Exception {
 
         String url = URLEncoder.encode(APIurl, "UTF-8").toLowerCase();
@@ -71,7 +85,16 @@ public class Authentication {
         //Criando Header AMX, a partir dos parâmetros gerados  
         return String.format("amx %s:%s:%s:%s", APIid, requestSignatureBase64String, nonce, time); //Formato Header 
     }
-
+    /**
+     * 
+     * @param APIid ID da API do usuário
+     * @param APIkey Chave da API do Usuário
+     * @param function Função desejada da API, compõe o final da URL da API
+     * @param method Método utilizado na conexão com a API, pode ser GET, POST ou DELETE
+     * @param data Corpo de envio da requisição, nos métodos GET e DELETE ele é nulo.
+     * @return APIResponse Resposta em json da API
+     * @throws Exception Exceção tratada
+     */
     public String request(String APIid, String APIkey, String function, String method, String data) throws Exception {
        
         //Criando parâmetros para conexão com a NegocieCoins
